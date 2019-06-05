@@ -16,6 +16,8 @@ import cherrypy
 
 import server
 
+import re
+
 # The address we listen for connections on
 LISTEN_IP = "0.0.0.0"
 LISTEN_PORT = 1234
@@ -55,6 +57,9 @@ def runMainApp():
 
     # Create an instance of MainApp and tell Cherrypy to send all requests under / to it. (ie all of them)
     cherrypy.tree.mount(server.MainApp(), "/", conf)
+
+    # Create an instance of receiver and tell Cherrypy to send all requests under /api to it. (ie all of them)
+    cherrypy.tree.mount(server.receiver(), "/api", conf)
 
     # Tell cherrypy where to listen, and to turn autoreload on
     cherrypy.config.update({'server.socket_host': LISTEN_IP,

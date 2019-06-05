@@ -1,8 +1,16 @@
 import cherrypy
+import access
+import db_setup
+import threadcon
+import threading
+import time
 
 startHTML = "<html><head><title>CS302 example</title><link rel='stylesheet' href='/static/example.css' /></head><body>"
 
 class MainApp(object):
+
+    def __init__(self):
+        self.dthread = threadcon.Downthread()
 
 	#CherryPy Configuration
     _cp_config = {'tools.encode.on': True, 
@@ -18,6 +26,7 @@ class MainApp(object):
         cherrypy.response.status = 404
         return Page
 
+
     # PAGES (which return HTML that can be viewed in browser)
     @cherrypy.expose
     def index(self):
@@ -25,10 +34,11 @@ class MainApp(object):
         
         try:
             Page += "Hello " + cherrypy.session['username'] + "!<br/>"
-            Page += "Here is some bonus text because you've logged in! <a href='/signout'>Sign out</a>"
+            Page += "Here is my trial <a href='/signout'>Sign out</a>"
         except KeyError: #There is no username
             
             Page += "Click here to <a href='login'>login</a>."
+        #return Page
         return Page
         
     @cherrypy.expose
@@ -52,8 +62,9 @@ class MainApp(object):
     @cherrypy.expose
     def signin(self, username=None, password=None):
         """Check their name and password and send them either to the main page, or back to the main login screen."""
-        error = authoriseUserLogin(username, password)
-        if error == 0:
+        autherisedping = access.ping(username, password)
+        if autherisedping['authentication'] == "basic":
+            self.dthread.threadset(username)
             cherrypy.session['username'] = username
             raise cherrypy.HTTPRedirect('/')
         else:
@@ -67,6 +78,7 @@ class MainApp(object):
             pass
         else:
             cherrypy.lib.sessions.expire()
+            self.dthread.terminate()
         raise cherrypy.HTTPRedirect('/')
 
 
@@ -76,9 +88,37 @@ class MainApp(object):
 
 def authoriseUserLogin(username, password):
     print("Log on attempt from {0}:{1}".format(username, password))
-    if (username.lower() == "user") and (password.lower() == "password"):
+    if (username.lower() == "tche562") and (password.lower() == "hdlmap456"):
         print("Success")
         return 0
     else:
         print("Failure")
         return 1
+
+
+class receiver(object):
+
+    cp_config = {'tools.encode.on': True, 
+                  'tools.encode.encoding': 'utf-8',
+                  'tools.sessions.on' : 'True',
+                 } 
+
+    # If they try somewhere we don't know, catch it here and send them to the right place.
+    @cherrypy.expose
+    def default(self, *args, **kwargs):
+        """The default page, given when we don't recognise where the request is for."""
+        Page = startHTML + "I don't know where you're trying to go, so have a 404 Error."
+        cherrypy.response.status = 404
+        return Page
+
+
+    @cherrypy.expose
+    @cherrypy.tools.json_in(force=False)
+    def rx_broadcast(self):
+        JSON_object = cherrypy.request.json
+        print(JSON_object)
+
+
+
+
+

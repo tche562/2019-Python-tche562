@@ -1,14 +1,19 @@
 import urllib.request
 import json
 import base64
+import sqlite3
 
-# url = "http://cs302.kiwi.land/api/ping"
-url = 'http://172.23.78.194:1234/api/rx_broadcast'
+username = 'tche562'
 
+url = "http://cs302.kiwi.land/api/report"
 
-#STUDENT TO UPDATE THESE...
-username = "tche562"
-password = "tche562_310725746"
+con = sqlite3.connect('database.db')
+c = con.cursor()
+cursor = c.execute("SELECT name,publickey,password from USER_INFO")
+for row in cursor:
+        if username == row[0]:
+            hex_str_mypub_k = row[1]
+            password = row[2]
 
 #create HTTP BASIC authorization header
 credentials = ('%s:%s' % (username, password))
@@ -19,8 +24,10 @@ headers = {
 }
 
 payload = {
+    "connection_address": "0.0.0.0.1234",
     "connection_location": "2", 
-    "connection_address": "0.0.0.0.1234"
+    "incoming_pubkey": hex_str_mypub_k,
+    "status": "online"
 }
 
 
@@ -28,7 +35,7 @@ payload_json = json.dumps(payload)
 payload_byte = payload_json.encode('utf-8')
 
 try:
-    req = urllib.request.Request(url, payload_byte)
+    req = urllib.request.Request(url,payload_byte, headers=headers)
     response = urllib.request.urlopen(req)
     data = response.read() # read the received bytes
     encoding = response.info().get_content_charset('utf-8') #load encoding if possible (default to utf-8)
@@ -39,5 +46,3 @@ except urllib.error.HTTPError as error:
 
 JSON_object = json.loads(data.decode(encoding))
 print(JSON_object)
-print(JSON_object['authentication'])
-

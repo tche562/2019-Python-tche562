@@ -1,14 +1,18 @@
 import urllib.request
 import json
 import base64
+import nacl.signing
+import nacl.encoding
+import sqlite3
 
-# url = "http://cs302.kiwi.land/api/ping"
-url = 'http://172.23.78.194:1234/api/rx_broadcast'
+
+username = 'tche562'
+password = 'tche562_310725746'
 
 
-#STUDENT TO UPDATE THESE...
-username = "tche562"
-password = "tche562_310725746"
+url = "http://cs302.kiwi.land/api/get_loginserver_record"
+
+
 
 #create HTTP BASIC authorization header
 credentials = ('%s:%s' % (username, password))
@@ -18,26 +22,21 @@ headers = {
     'Content-Type' : 'application/json; charset=utf-8',
 }
 
-payload = {
-    "connection_location": "2", 
-    "connection_address": "0.0.0.0.1234"
-}
-
-
-payload_json = json.dumps(payload)
-payload_byte = payload_json.encode('utf-8')
 
 try:
-    req = urllib.request.Request(url, payload_byte)
+    req = urllib.request.Request(url, headers=headers)
     response = urllib.request.urlopen(req)
     data = response.read() # read the received bytes
     encoding = response.info().get_content_charset('utf-8') #load encoding if possible (default to utf-8)
     response.close()
 except urllib.error.HTTPError as error:
     print(error.read())
-    exit()
 
 JSON_object = json.loads(data.decode(encoding))
-print(JSON_object)
-print(JSON_object['authentication'])
+print(JSON_object['loginserver_record'])
 
+con = sqlite3.connect('database.db')
+c = con.cursor()
+c.execute("UPDATE USER_INFO set record = '"+JSON_object['loginserver_record']+"' where name = '"+username+"'")
+con.commit()
+con.close()
