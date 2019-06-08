@@ -5,17 +5,9 @@ import sqlite3
 
 username = 'tche562'
 
-table = 'ol_user_info'
+
 
 url = "http://cs302.kiwi.land/api/list_users"
-
-def delete_db(tablename):
-    con = sqlite3.connect('database.db')
-    c = con.cursor()
-    c.execute("DELETE from "+tablename)
-    con.commit()
-    con.close()
-
 
 con = sqlite3.connect('database.db')
 c = con.cursor()
@@ -43,11 +35,13 @@ except urllib.error.HTTPError as error:
     print(error.read())
 
 JSON_object = json.loads(data.decode(encoding))
-delete_db(table)
 inside = JSON_object['users']
 print(inside)
+
+
 con = sqlite3.connect('database.db')
 c = con.cursor()
+c.execute("UPDATE OL_USER_INFO set status = 'Offline'")
 for user in inside:
     username = user['username']
     in_pubkey = user['incoming_pubkey']
@@ -56,9 +50,14 @@ for user in inside:
     con_up_at = user['connection_updated_at']
     status = user['status']
     print(username+"----------"+in_pubkey)
-    c.execute("INSERT INTO OL_USER_INFO(username,publickey,address,status)\
-    VALUES('"+username+"','"+in_pubkey+"','"+con_addr+"','"+status+"')");
-con.commit()
+    try:
+        c.execute("INSERT INTO OL_USER_INFO(username,publickey,address,status)\
+        VALUES('"+username+"','"+in_pubkey+"','"+con_addr+"','"+status+"')")
+        con.commit() 
+    except:
+        c.execute("UPDATE OL_USER_INFO set publickey = '"+in_pubkey+"', address = '"+con_addr+"', status = '"+status+"' where username = '"+username+"'")
+        con.commit()
+        
 con.close()
 
 

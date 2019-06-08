@@ -39,7 +39,7 @@ JSON_object = json.loads(data.decode(encoding))
 print(JSON_object)
 
 #derive a symmetric key.
-key = nacl.pwhash.argon2id.kdf(16,PNM,bytes(16), 8, 536870912, encoder=nacl.encoding.HexEncoder)
+key = nacl.pwhash.argon2i.kdf(32,passw,PNM, 8, 536870912)
 
 #create a random nonce
 nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)

@@ -7,7 +7,7 @@ import sqlite3
 import time 
 
 username = 'tche562' 
-message = 'get from database'
+message = 'fuck you bitch'
 target_username = 'bpen264'
 
 
@@ -17,7 +17,7 @@ ts = str(time.time())
 
 con = sqlite3.connect('database.db')
 c = con.cursor()
-cursor = c.execute("SELECT username, publickey,address from OL_USER_INFO")
+cursor = c.execute("SELECT username, publickey, address from OL_USER_INFO")
 for row in cursor:
     if target_username == row[0] :
         target_pubkey = row[1]

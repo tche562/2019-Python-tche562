@@ -7,9 +7,9 @@ import sqlite3
 import time 
 
 username = 'tche562' 
-message = 'see me in the mirror'
+message = 'what are u doing now'
 
-url = "http://10.0.0.16:1234/api/rx_broadcast"
+url = "http://192.168.40.129:1234/api/rx_broadcast"
 
 ts = str(time.time())
 

@@ -8,8 +8,9 @@ import nacl.pwhash
 import time
 import sqlite3
 
-passw = "panima666"
-PNM = passw.encode('utf-8')
+passw = "panima"
+passwo = passw * 16
+PNM = passwo[:16].encode('utf-8')
 
 privatedata = {"prikeys": ["...", "..."],
 "blocked_pubkeys": ["...", "..."],
@@ -20,7 +21,7 @@ privatedata = {"prikeys": ["...", "..."],
 "friends_usernames": ["...", "..."]}
 
 #derive a symmetric key.
-key = nacl.pwhash.argon2id.kdf(16,PNM,bytes(16), 8, 536870912, encoder=nacl.encoding.HexEncoder)
+key = nacl.pwhash.argon2i.kdf(32,passw,PNM, 8, 536870912)
 
 #create a random nonce
 nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)
