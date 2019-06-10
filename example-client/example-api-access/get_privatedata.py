@@ -12,8 +12,9 @@ url = "http://cs302.kiwi.land/api/get_privatedata"
 username = 'tche562'
 password =  'tche562_310725746'
 
-passw = "panima666"
-PNM = passw.encode('utf-8')
+passw = "panima"
+passwo = passw * 16
+PNM = passwo[:16].encode('utf-8')
 
 #create HTTP BASIC authorization header
 credentials = ('%s:%s' % (username, password))
@@ -39,7 +40,7 @@ JSON_object = json.loads(data.decode(encoding))
 print(JSON_object)
 
 #derive a symmetric key.
-key = nacl.pwhash.argon2i.kdf(32,passw,PNM, 8, 536870912)
+key = nacl.pwhash.argon2i.kdf(32,passw.encode('utf-8'),PNM, 8, 536870912)
 
 #create a random nonce
 nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)
@@ -57,3 +58,4 @@ plaintext = json.loads(decrypted.decode('utf-8'))
 pw = plaintext['privatedata']
 
 print(pw)
+print("----------------------------")

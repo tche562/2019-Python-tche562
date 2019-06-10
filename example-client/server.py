@@ -7,6 +7,7 @@ import time
 import verify
 import communication
 import sqlite3
+import privatedata
 
 startHTML = ("<!DOCTYPE HTML><html><head><title>CS302</title><!-- Custom Theme files -->"
                 +"<link href='/static/style.css' rel='stylesheet' type='text/css' media='all'/>"
@@ -43,6 +44,10 @@ class MainApp(object):
         return Page
 
 
+
+
+
+
     # PAGES (which return HTML that can be viewed in browser)    
     @cherrypy.expose
     def index(self):
@@ -55,8 +60,9 @@ class MainApp(object):
             Page += "<div class='login'><h2>Compsys 302</h2>"
             Page += "<div class='login-top'><p>Hello " + username + "!<br/>Welcome To Home Page</br>"
             Page += "<a href='/signout'>Sign out</a></body></html></p></div>"
-            Page += "<div class='login-bottom'><h3><a href='privatemessage'>Privatemessage</a> &nbsp;"
-            Page += "&nbsp; <a href='broadcast'>Broadcast</a></h3></div></div></body></html>"
+            Page += "<div class='login-bottom'><h3><a href='privatemessage'>Privatemessage</a> "
+            Page += "&nbsp; &nbsp; &nbsp; &nbsp;<a href='broadcast'>Broadcast</a> &nbsp; &nbsp; &nbsp; &nbsp;"
+            Page += "<a href='privatedata'>PrivateData</a></h3></div></div></body></html>"
 
         except KeyError: #There is no username
             
@@ -66,6 +72,41 @@ class MainApp(object):
             Page += "<div class='login-bottom'></div></div></body></html>"
 
         return Page
+
+
+    @cherrypy.expose
+    def privatedata(self):
+        Page = startHTML
+        Page += "<div class='status'><h3> &nbsp;<a href='index'>Home</a>" 
+        Page += "&nbsp;<a href='privatemessage'>Privatemessage</a> &nbsp;<a href='broadcast'>Broadcast</a> </h3></div>"
+        Page += '<form action="/pd_process" method="post" enctype="multipart/form-data">'
+        Page += '<div class="login"><h2>Compsys 302</h2>'
+        Page += '<div class="login-top"><h1>LOGIN</h1>'
+        Page += "<form><input type='text' name ='secret_password' ></form>"
+        Page += '<div class="forgot"><input type="submit" value="login" ></div></div>'
+        Page += '<div class="login-bottom">'
+        Page += '</div></div><div class="copyright"><p>Copyright &copy;Tianhang chen All rights reserved.</p></div></body></html>'
+
+        return Page
+
+    
+    @cherrypy.expose
+    def pd_process(self,secret_password = None):
+        Page = startHTML
+        Page += "<div class='status'><h3> &nbsp;<a href='index'>Home</a>" 
+        Page += "&nbsp;<a href='privatemessage'>Privatemessage</a> &nbsp;<a href='broadcast'>Broadcast</a> </h3></div>"
+        Page += '<div class="login"><h2>Compsys 302</h2>'
+        privatedata.add_current_prikey()
+        privatedata.encrypt_add_privatedata(secret_password,self.current_username)
+        privatedata.decrypt_get_privatedata(secret_password,self.current_username)
+        Page += '<div class="login-top"><p>The privatedata has been uploaded and downloaded</p>'
+        Page += '</div>'
+        Page += "<div class='login-bottom'>"
+        Page += '</div></div><div class="copyright"><p>Copyright &copy;Tianhang chen All rights reserved.</p></div></body></html>'
+    
+        return Page
+        
+
 
     @cherrypy.expose
     def privatemessage(self,user = None,message = None):
@@ -93,12 +134,13 @@ class MainApp(object):
                 p_content = content[index]
                 p_receiver = receiver[index]
                 p_datetime = communication.trans_time(p_ts)
+                tidy_p_content = communication.filter(p_content)
                 if p_sender == self.current_username and p_receiver == user:
                     Page += "<div class = 'time'><p>"+p_datetime+"</p></div>"
-                    Page += "<div class = 'girl'><p>"+p_content+"</p></div>"
+                    Page += "<div class = 'girl'><p>"+tidy_p_content+"</p></div>"
                 elif p_sender == user and p_receiver == self.current_username:
                     Page += "<div class = 'time'><p>"+p_datetime+"</p></div>"
-                    Page += "<div class = 'boy'><p>"+p_content+"</p></div>"
+                    Page += "<div class = 'boy'><p>"+tidy_p_content+"</p></div>"
             Page += "</div><form action='/privatemessage?user="+ user +"' method='post' enctype='multipart/form-data'>"
             Page += "<div class='chatwindow_bottom'>"
             Page +="<textarea name = 'message' cols = '60' row = '5' ></textarea></div><input type='submit' value='send' ></form></div>"
@@ -115,6 +157,8 @@ class MainApp(object):
             raise cherrypy.HTTPRedirect("/privatemessage?user="+ user)
         else:
             raise cherrypy.HTTPRedirect("/privatemessage")
+
+
 
 
     @cherrypy.expose
@@ -145,6 +189,8 @@ class MainApp(object):
     @cherrypy.expose
     def broadcast_send(self):
         raise cherrypy.HTTPRedirect("/broadcast")
+
+
 
 
 
@@ -194,6 +240,13 @@ class MainApp(object):
         return Page
 
 
+
+
+
+
+
+
+
     @cherrypy.expose
     def login(self, bad_attempt = 0):
         Page = startHTML 
@@ -205,7 +258,7 @@ class MainApp(object):
         Page += '<div class="login"><h2>Compsys 302</h2>'
         Page += '<div class="login-top"><h1>LOGIN</h1>'
         Page += "<form><input type='text' name='username'><input type='text' name ='password' ></form>"
-        Page += '<div class="forgot"><a href="#">forgot Password</a><input type="submit" value="Login" ></div></div>'
+        Page += '<div class="forgot"><input type="submit" value="Login" ></div></div>'
         Page += '<div class="login-bottom">'
         Page += '</div></div><div class="copyright"><p>Copyright &copy; 2015.Tianhang chen All rights reserved.</p></div></body></html>'
         return Page

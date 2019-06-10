@@ -9,6 +9,7 @@ import time
 import sqlite3
 
 passw = "panima"
+
 passwo = passw * 16
 PNM = passwo[:16].encode('utf-8')
 
@@ -21,7 +22,7 @@ privatedata = {"prikeys": ["...", "..."],
 "friends_usernames": ["...", "..."]}
 
 #derive a symmetric key.
-key = nacl.pwhash.argon2i.kdf(32,passw,PNM, 8, 536870912)
+key = nacl.pwhash.argon2i.kdf(32,passw.encode('utf-8'),PNM, 8, 536870912)
 
 #create a random nonce
 nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)
@@ -34,7 +35,6 @@ payload = {
         "privatedata":privatedata
     }
 
-
 payload_json = json.dumps(payload)
 
 payload_byte = payload_json.encode('utf-8')
@@ -46,21 +46,6 @@ encrypted_base64 = base64.b64encode(encrypted)
 encrypted_base64_str = encrypted_base64.decode('utf-8')
 
 print("-------------------------"+encrypted_base64_str+"--------------------")
-
-
-
-
-# decrypted_base64 = base64.b64decode(encrypted_base64_str)
-
-# decrypted = box.decrypt(decrypted_base64)
-
-# plaintext = json.loads(decrypted.decode('utf-8'))
-
-# pw = plaintext["privatedata"]
-
-# print("------------------"+pw+"------------------")
-
-
 
 
 username = 'tche562'

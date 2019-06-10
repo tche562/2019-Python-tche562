@@ -153,6 +153,7 @@ def broadcast(username,message):
     for index in range(len(user)):
         if status[index] != "offline" :
             p_address = address[index]
+
             url = "http://"+p_address+"/api/rx_broadcast"
 
 
@@ -195,6 +196,22 @@ def trans_time(ts):
     real_time = time.localtime(ts)
     date_time = time.strftime("%H:%M:%S %d/%m/%Y", real_time)
     return date_time
+
+
+
+def filter(message):
+    
+    con = sqlite3.connect('database.db')
+    c = con.cursor()
+    cursor = c.execute("SELECT word from word_block")
+    for item in cursor:
+            sensitive_w = item[0]
+            if message.find(sensitive_w) != -1:
+                message = message.replace(sensitive_w,"****")
+    
+    return message
+
+
 
 
 

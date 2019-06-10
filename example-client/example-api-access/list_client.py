@@ -41,7 +41,7 @@ print(inside)
 
 con = sqlite3.connect('database.db')
 c = con.cursor()
-c.execute("UPDATE OL_USER_INFO set status = 'Offline'")
+c.execute("UPDATE OL_USER_INFO set status = 'offline'")
 for user in inside:
     username = user['username']
     in_pubkey = user['incoming_pubkey']

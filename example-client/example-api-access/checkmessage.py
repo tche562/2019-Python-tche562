@@ -52,6 +52,6 @@ def checkmessage(username):
 
     JSON_object = json.loads(data.decode(encoding))
     print("-------------------------showing response from checkmessage----------")
-    print(JSON_object)
-
+    print(JSON_object['broadcasts'])
+    print(JSON_object['private_messages'])
 checkmessage("tche562")
